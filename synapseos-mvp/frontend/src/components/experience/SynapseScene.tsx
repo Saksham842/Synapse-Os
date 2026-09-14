@@ -99,7 +99,8 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
   // SCENE 2: Constellation 7 Department Nodes & Lines
   // ----------------------------------------------------
   const deptPositions = useMemo(() => {
-    const ringRadius = 5.2;
+    // 4.1 radius gives generous padding inside 50% split viewports so nodes never get cropped
+    const ringRadius = 4.1;
     const positions: Record<string, THREE.Vector3> = {};
     DEPT_KEYS.forEach((key, idx) => {
       const angle = (idx / DEPT_KEYS.length) * Math.PI * 2 - Math.PI / 2;
@@ -230,7 +231,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
     for (let i = 0; i < count; i++) {
       const phi = Math.acos(-1 + (2 * i) / count);
       const theta = Math.sqrt(count * Math.PI) * phi;
-      const radius = 6.2 + Math.sin(i * 1.5) * 0.4;
+      const radius = 4.6 + Math.sin(i * 1.5) * 0.3;
       nodes.push({
         pos: new THREE.Vector3(
           radius * Math.cos(theta) * Math.sin(phi),
@@ -245,7 +246,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
 
   const priorityLines = useMemo(() => {
     const coords: number[] = [];
-    const maxDist = 3.8;
+    const maxDist = 3.2;
     for (let i = 0; i < priorityNodes.length; i++) {
       for (let j = i + 1; j < priorityNodes.length; j++) {
         const p1 = priorityNodes[i].pos;
@@ -283,7 +284,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
     // ── 1. CAMERA INTERPOLATION ───────────────────────────────────────────
     let targetCamX = 0;
     let targetCamY = 0;
-    let targetCamZ = 13;
+    let targetCamZ = 15.5;
     const targetLookAt = new THREE.Vector3(0, 0, 0);
 
     if (inDash) {
@@ -291,29 +292,29 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
         // Swoop camera directly to the selected Queen
         const qPos = deptPositions[activeOption];
         if (qPos) {
-          targetCamX = qPos.x * 0.72 + 1.2;
-          targetCamY = qPos.y * 0.72 + 0.8;
-          targetCamZ = 5.4;
+          targetCamX = qPos.x * 0.72 + 0.8;
+          targetCamY = qPos.y * 0.72 + 0.5;
+          targetCamZ = 6.4;
           targetLookAt.set(qPos.x, qPos.y, qPos.z);
         }
       } else if (activeOption === 'core') {
         // Zoom right into the Nash Arbitrator generator
         targetCamX = 0;
-        targetCamY = 0.6;
-        targetCamZ = 4.5;
+        targetCamY = 0.5;
+        targetCamZ = 5.2;
         targetLookAt.set(0, 0, 0);
       } else if (['benchmark', 'weights', 'reputation'].includes(activeOption)) {
         // Elevated isometric overview
-        targetCamX = -4.5;
-        targetCamY = 3.2;
-        targetCamZ = 9.0;
+        targetCamX = -3.8;
+        targetCamY = 2.8;
+        targetCamZ = 12.0;
         targetLookAt.set(0, 0, 0);
       } else {
-        // Dashboard overview perspective
+        // Overview perspective — Z=15.5 guarantees entire constellation fits without cut off
         targetCamX = 0;
-        targetCamY = 2.4;
-        targetCamZ = 12.2;
-        targetLookAt.set(0, -0.4, 0);
+        targetCamY = 1.0;
+        targetCamZ = 15.5;
+        targetLookAt.set(0, 0, 0);
       }
     } else {
       // Cinematic Scroll Path

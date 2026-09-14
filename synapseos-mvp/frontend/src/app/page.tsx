@@ -38,7 +38,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const WS_URL   = API_BASE.replace(/^http/, 'ws') + '/ws/live';
 
 const SCENES = [
-  { id: 1, title: '01 Ignition',      subtitle: 'Central Swarm & KPIs',       range: [0.00, 0.16] as [number, number] },
+  { id: 1, title: '01 Ignition',      subtitle: 'Swarm + SynapseOS',           range: [0.00, 0.16] as [number, number] },
   { id: 2, title: '02 Constellation', subtitle: '7 Queens (Left Column)',      range: [0.16, 0.34] as [number, number] },
   { id: 3, title: '03 Worker Fleet',  subtitle: 'Sub-Agents (Left Column)',    range: [0.34, 0.52] as [number, number] },
   { id: 4, title: '04 Benchmark',     subtitle: 'Solver Chart (Right Column)', range: [0.52, 0.68] as [number, number] },
@@ -57,8 +57,8 @@ const QUEEN_COLORS: Record<string, string> = {
 };
 
 const SWARM_OPTIONS = [
-  { id: 'overview',     label: '✦ Swarm Orbit',       color: '#7C93FF' },
-  { id: 'core',         label: '✦ Nash Core',         color: '#A3B4FF' },
+  { id: 'overview',     label: '✦ Orbit',             color: '#7C93FF' },
+  { id: 'core',         label: '✦ Core',              color: '#A3B4FF' },
   { id: 'Sales',        label: '✦ Sales',             color: '#7C93FF' },
   { id: 'Marketing',    label: '✦ Marketing',         color: '#F2A65A' },
   { id: 'Operations',   label: '✦ Operations',        color: '#38EF7D' },
@@ -67,8 +67,8 @@ const SWARM_OPTIONS = [
   { id: 'Back Office',  label: '✦ Back Office',       color: '#FF6584' },
   { id: 'Deals',        label: '✦ Deals',             color: '#FFD166' },
   { id: 'benchmark',    label: '✦ Benchmarks',        color: '#10B981' },
-  { id: 'weights',      label: '✦ Priority Weights',  color: '#F2A65A' },
-  { id: 'reputation',   label: '✦ Byzantine Test',    color: '#EF4444' },
+  { id: 'weights',      label: '✦ Sliders',           color: '#F2A65A' },
+  { id: 'reputation',   label: '✦ Byzantine',         color: '#EF4444' },
 ];
 
 function getTrustBadge(rep: number) {
@@ -193,31 +193,30 @@ export default function HomePage() {
   const activeAlloc = nash?.allocations.find((a) => a.name === selectedDept);
 
   // Dynamic layout stage:
-  // 1. Initial: 'center' (Swarm in center, SynapseOS title in center)
-  // 2. Scroll: 'right' (Swarm slides to right 50%, content on left 50%)
-  // 3. Further Scroll: 'left' (Swarm slides to left 50%, content on right 50%)
+  // 1. Initial: 'center' (Swarm in top 54vh, SynapseOS strictly below it)
+  // 2. Scroll: 'right' (Swarm slides to right 54%, content on left 46%)
+  // 3. Further Scroll: 'left' (Swarm slides to left 54%, content on right 46%)
   const swarmStage: 'center' | 'right' | 'left' =
     scrollProgress < 0.16 ? 'center' : scrollProgress < 0.52 ? 'right' : 'left';
 
   return (
     <main style={{ background: '#0B0E20', color: '#F5F6FA', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
 
-      {/* ── DYNAMIC 3D CANVAS STAGE (Center → Right → Left) ─────────────── */}
+      {/* ── DYNAMIC 3D CANVAS STAGE (Top Center → Right → Left) ─────────── */}
       {canvasReady && (
         <div
           className="swarm-viewport-container"
           style={{
             position: 'fixed',
             top: 0,
-            bottom: 0,
             zIndex: 5,
             pointerEvents: 'auto',
-            transition: 'left 0.75s cubic-bezier(0.16, 1, 0.3, 1), width 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'all 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
             ...(swarmStage === 'center'
-              ? { left: 0, width: '100%' }
+              ? { left: 0, width: '100%', height: '56vh' }
               : swarmStage === 'right'
-              ? { left: '50%', width: '50%' }
-              : { left: 0, width: '50%' }),
+              ? { left: '46%', width: '54%', height: '100vh', bottom: 0 }
+              : { left: 0, width: '54%', height: '100vh', bottom: 0 }),
           }}
         >
           <CinematicCanvas
@@ -237,23 +236,23 @@ export default function HomePage() {
           left: 0,
           right: 0,
           zIndex: 40,
-          padding: '16px 24px',
+          padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           pointerEvents: 'none',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, pointerEvents: 'auto' }}>
           <button
             onClick={() => scrollToSection(0)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              padding: '6px 14px',
+              padding: '5px 12px',
               borderRadius: 999,
-              background: 'rgba(20,24,64,0.9)',
+              background: 'rgba(20,24,64,0.92)',
               border: '1px solid rgba(124,147,255,0.3)',
               backdropFilter: 'blur(12px)',
               cursor: 'pointer',
@@ -265,17 +264,17 @@ export default function HomePage() {
             </span>
           </button>
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border backdrop-blur-md"
+            className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono border backdrop-blur-md"
             style={{
-              background: 'rgba(20,24,64,0.9)',
+              background: 'rgba(20,24,64,0.92)',
               borderColor: connMode === 'ws' ? 'rgba(16,185,129,0.4)' : 'rgba(242,166,90,0.4)',
             }}
           >
             <span className={`w-2 h-2 rounded-full ${connMode === 'ws' ? 'bg-[#10B981] animate-pulse' : 'bg-[#F2A65A] animate-ping'}`} />
-            <span className="font-semibold uppercase" style={{ color: connMode === 'ws' ? '#10B981' : '#F2A65A' }}>
+            <span className="font-semibold uppercase text-[11px]" style={{ color: connMode === 'ws' ? '#10B981' : '#F2A65A' }}>
               {connMode === 'ws' ? 'WS Live' : connMode === 'connecting' ? 'Connecting…' : 'Polling'}
             </span>
-            {currentRound && <span style={{ color: '#7C93FF', marginLeft: 4 }}>Cycle #{round}</span>}
+            {currentRound && <span style={{ color: '#7C93FF', marginLeft: 2, fontSize: 11 }}>#{round}</span>}
           </div>
         </div>
 
@@ -284,17 +283,17 @@ export default function HomePage() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
-              padding: '6px 16px',
+              gap: 8,
+              padding: '5px 14px',
               borderRadius: 999,
-              background: 'rgba(20,24,64,0.9)',
+              background: 'rgba(20,24,64,0.92)',
               border: '1px solid rgba(124,147,255,0.3)',
               backdropFilter: 'blur(12px)',
               fontSize: 11,
               fontFamily: 'monospace',
             }}
           >
-            <Compass style={{ width: 14, height: 14, color: '#7C93FF' }} />
+            <Compass style={{ width: 13, height: 13, color: '#7C93FF' }} />
             <span style={{ color: '#9AA2C9' }}>STAGE {sceneIdx + 1}/6:</span>
             <span style={{ color: '#fff', fontWeight: 600 }}>{SCENES[sceneIdx]?.subtitle}</span>
             <span style={{ color: '#7C93FF', fontWeight: 700 }}>{Math.round(scrollProgress * 100)}%</span>
@@ -306,13 +305,13 @@ export default function HomePage() {
       <nav
         style={{
           position: 'fixed',
-          right: 20,
+          right: 18,
           top: '50%',
           transform: 'translateY(-50%)',
           zIndex: 40,
           display: 'flex',
           flexDirection: 'column',
-          gap: 12,
+          gap: 10,
           pointerEvents: 'auto',
         }}
       >
@@ -322,7 +321,7 @@ export default function HomePage() {
             <button
               key={s.id}
               onClick={() => scrollToSection(i)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}
               title={`${s.title} — ${s.subtitle}`}
             >
               <span
@@ -332,19 +331,19 @@ export default function HomePage() {
                   color: active ? '#7C93FF' : '#9AA2C9',
                   opacity: active ? 1 : 0,
                   transition: 'opacity 0.3s',
-                  textShadow: '0 0 8px rgba(0,0,0,0.8)',
+                  textShadow: '0 0 8px rgba(0,0,0,0.9)',
                 }}
               >
                 {s.title}
               </span>
               <div
                 style={{
-                  width: 10,
-                  height: 10,
+                  width: 9,
+                  height: 9,
                   borderRadius: '50%',
                   border: `1px solid ${active ? '#7C93FF' : 'rgba(124,147,255,0.4)'}`,
                   background: active ? '#7C93FF' : 'transparent',
-                  transform: active ? 'scale(1.3)' : 'scale(1)',
+                  transform: active ? 'scale(1.25)' : 'scale(1)',
                   boxShadow: active ? '0 0 10px #7C93FF' : 'none',
                   transition: 'all 0.3s',
                 }}
@@ -362,61 +361,61 @@ export default function HomePage() {
       ═════════════════════════════════════════════════════════════════════ */}
       <div style={{ position: 'relative', zIndex: 15 }}>
 
-        {/* ── § 1: INITIAL STAGE — SWARM IN CENTER + SYNAPSEOS HERO ──────── */}
+        {/* ── § 1: INITIAL STAGE — SWARM IN TOP 56vh, SYNAPSEOS STRICTLY BELOW ── */}
         <section
           ref={sectionRefs[0]}
           style={{
             minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             textAlign: 'center',
-            padding: '100px 24px 60px',
+            padding: '0 24px 44px',
             pointerEvents: 'none',
           }}
         >
-          <div style={{ maxWidth: 760, pointerEvents: 'auto' }}>
+          {/* Content sits strictly BELOW the top 56vh 3D swarm */}
+          <div style={{ maxWidth: 840, pointerEvents: 'auto', paddingTop: '58vh' }}>
             <span
               style={{
                 display: 'inline-block',
-                padding: '6px 16px',
+                padding: '4px 14px',
                 borderRadius: 999,
-                fontSize: 11,
+                fontSize: 10,
                 fontFamily: 'monospace',
                 textTransform: 'uppercase',
-                letterSpacing: '0.16em',
-                background: 'rgba(124,147,255,0.2)',
+                letterSpacing: '0.14em',
+                background: 'rgba(124,147,255,0.18)',
                 color: '#7C93FF',
-                border: '1px solid rgba(124,147,255,0.4)',
-                marginBottom: 20,
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 0 30px rgba(124,147,255,0.25)',
+                border: '1px solid rgba(124,147,255,0.35)',
+                marginBottom: 10,
+                backdropFilter: 'blur(10px)',
               }}
             >
               Phase 01 // Quantum Ignition
             </span>
             <h1
               style={{
-                fontSize: 'clamp(54px, 9vw, 104px)',
+                fontSize: 'clamp(36px, 5.5vw, 68px)',
                 fontFamily: 'serif',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
                 color: '#fff',
-                textShadow: '0 0 60px rgba(124,147,255,0.6)',
-                margin: '0 0 16px',
-                lineHeight: 1.05,
+                textShadow: '0 0 45px rgba(124,147,255,0.5)',
+                margin: '0 0 8px',
+                lineHeight: 1.1,
               }}
             >
               SynapseOS
             </h1>
-            <p style={{ fontSize: 'clamp(17px, 2.2vw, 22px)', color: '#CAD4FF', fontWeight: 400, lineHeight: 1.6, margin: '0 auto 28px', maxWidth: 620 }}>
+            <p style={{ fontSize: 'clamp(14px, 1.8vw, 17px)', color: '#CAD4FF', fontWeight: 400, lineHeight: 1.5, margin: '0 auto 16px', maxWidth: 580 }}>
               The AI Workforce Operating System: 7 department Queens delegating to specialized worker swarms, coordinated via a shared Second Brain and Nash compute governance.
             </p>
 
             {/* 4 Compact Telemetry Chips */}
             {nash && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginBottom: 32 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 18 }}>
                 {[
                   { label: 'Compute Pool', val: `${F_max.toFixed(1)} k-cyc/s`, color: '#7C93FF' },
                   { label: 'Nash Gain', val: `+${nash.total_utility.toFixed(2)} pts`, color: '#10B981' },
@@ -426,11 +425,11 @@ export default function HomePage() {
                   <div
                     key={k.label}
                     style={{
-                      padding: '8px 14px',
-                      borderRadius: 12,
+                      padding: '5px 12px',
+                      borderRadius: 10,
                       background: 'rgba(20,24,64,0.85)',
-                      border: '1px solid rgba(124,147,255,0.3)',
-                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(124,147,255,0.25)',
+                      backdropFilter: 'blur(10px)',
                       fontSize: 11,
                       fontFamily: 'monospace',
                     }}
@@ -447,21 +446,20 @@ export default function HomePage() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
-                padding: '12px 24px',
+                gap: 6,
+                padding: '10px 20px',
                 borderRadius: 999,
-                background: 'linear-gradient(135deg,rgba(124,147,255,0.25),rgba(90,111,232,0.35))',
+                background: 'linear-gradient(135deg,rgba(124,147,255,0.2),rgba(90,111,232,0.3))',
                 color: '#fff',
                 fontWeight: 600,
-                fontSize: 13,
+                fontSize: 12,
                 fontFamily: 'monospace',
-                border: '1px solid rgba(124,147,255,0.4)',
+                border: '1px solid rgba(124,147,255,0.35)',
                 cursor: 'pointer',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 0 24px rgba(124,147,255,0.3)',
+                backdropFilter: 'blur(10px)',
               }}
             >
-              Scroll down to inspect department swarms
+              Scroll down to inspect swarms
               <ChevronDown style={{ width: 14, height: 14, color: '#7C93FF' }} />
             </button>
           </div>
@@ -470,7 +468,7 @@ export default function HomePage() {
         {/* ── STAGE 2: SWARM MOVES TO RIGHT // CONTENT ON LEFT ────────────── */}
         <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 24px' }}>
 
-          {/* § 2: THE 7 DEPARTMENT QUEENS (LEFT 50%) */}
+          {/* § 2: THE 7 DEPARTMENT QUEENS (LEFT COLUMN) */}
           <section
             ref={sectionRefs[1]}
             style={{
@@ -478,33 +476,33 @@ export default function HomePage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: '80px 0',
-              maxWidth: '48%', // Leaves right 50% clear for the 3D Swarm!
+              padding: '60px 0',
+              maxWidth: '44%', // Generous margin leaves swarm 100% visible on right!
             }}
           >
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 16 }}>
               <span
                 style={{
                   display: 'inline-block',
-                  padding: '4px 12px',
+                  padding: '3px 10px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontFamily: 'monospace',
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   background: 'rgba(242,166,90,0.18)',
                   color: '#F2A65A',
                   border: '1px solid rgba(242,166,90,0.35)',
-                  marginBottom: 12,
+                  marginBottom: 8,
                 }}
               >
                 Phase 02 // Harmonic Topology
               </span>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 10px' }}>
+              <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 36px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
                 The 7 Department Queens
               </h2>
-              <p style={{ fontSize: 14, color: '#D3D8EF', lineHeight: 1.6, margin: 0 }}>
-                Seven autonomous departmental orchestrators orbit the core. The 3D swarm on the right reflects live cycle rates and trust rings. Click any Queen to inspect.
+              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: 0 }}>
+                Autonomous department orchestrators orbit the core. The 3D swarm on the right displays live cycle allocations.
               </p>
             </div>
 
@@ -513,17 +511,17 @@ export default function HomePage() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 5,
                 flexWrap: 'wrap',
-                padding: '8px 12px',
-                borderRadius: 14,
+                padding: '6px 10px',
+                borderRadius: 12,
                 background: 'rgba(20,24,64,0.85)',
                 border: '1px solid rgba(124,147,255,0.25)',
                 backdropFilter: 'blur(16px)',
-                marginBottom: 16,
+                marginBottom: 14,
               }}
             >
-              <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#9AA2C9', textTransform: 'uppercase', paddingRight: 4 }}>
+              <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#9AA2C9', textTransform: 'uppercase', paddingRight: 4 }}>
                 3D Focus:
               </span>
               {SWARM_OPTIONS.slice(0, 9).map((opt) => {
@@ -533,7 +531,7 @@ export default function HomePage() {
                     key={opt.id}
                     onClick={() => handleSelectOption(opt.id)}
                     style={{
-                      padding: '4px 10px',
+                      padding: '3px 8px',
                       borderRadius: 999,
                       fontSize: 10,
                       fontFamily: 'monospace',
@@ -542,7 +540,7 @@ export default function HomePage() {
                       background: isSel ? opt.color : 'rgba(124,147,255,0.08)',
                       border: `1px solid ${isSel ? opt.color : 'rgba(124,147,255,0.25)'}`,
                       cursor: 'pointer',
-                      boxShadow: isSel ? `0 0 14px ${opt.color}88` : 'none',
+                      boxShadow: isSel ? `0 0 12px ${opt.color}88` : 'none',
                     }}
                   >
                     {opt.label}
@@ -552,7 +550,7 @@ export default function HomePage() {
             </div>
 
             {/* 7-Queen Live Cards Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 10 }}>
               {Object.keys(DEPARTMENTS_DATA).map((deptKey) => {
                 const dept = DEPARTMENTS_DATA[deptKey];
                 const alloc = nash?.allocations.find((a) => a.name === deptKey);
@@ -566,25 +564,25 @@ export default function HomePage() {
                     onClick={() => handleSelectOption(deptKey)}
                     style={{
                       cursor: 'pointer',
-                      padding: '14px 16px',
-                      borderRadius: 16,
+                      padding: '12px 14px',
+                      borderRadius: 14,
                       border: `1px solid ${isSelected ? dept.color : 'rgba(124,147,255,0.2)'}`,
                       background: isSelected ? 'rgba(25,32,84,0.92)' : 'rgba(20,24,64,0.85)',
                       backdropFilter: 'blur(16px)',
-                      boxShadow: isSelected ? `0 0 20px ${dept.color}35` : 'none',
+                      boxShadow: isSelected ? `0 0 18px ${dept.color}35` : 'none',
                       transition: 'all 0.2s',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: dept.color }} />
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{dept.name}</span>
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: dept.color }} />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{dept.name}</span>
                       </div>
                       <span
                         style={{
                           fontSize: 9,
                           fontFamily: 'monospace',
-                          padding: '2px 6px',
+                          padding: '1px 5px',
                           borderRadius: 999,
                           color: trust.color,
                           background: trust.bg,
@@ -604,7 +602,7 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* § 3: AUTONOMOUS WORKER FLEET (LEFT 50%) */}
+          {/* § 3: AUTONOMOUS WORKER FLEET (LEFT COLUMN) */}
           <section
             ref={sectionRefs[2]}
             style={{
@@ -612,38 +610,38 @@ export default function HomePage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: '80px 0',
-              maxWidth: '48%', // Leaves right 50% clear for the 3D Swarm!
+              padding: '60px 0',
+              maxWidth: '44%', // Generous margin leaves swarm 100% visible on right!
             }}
           >
-            <div style={{ marginBottom: 18 }}>
+            <div style={{ marginBottom: 14 }}>
               <span
                 style={{
                   display: 'inline-block',
-                  padding: '4px 12px',
+                  padding: '3px 10px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontFamily: 'monospace',
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   background: 'rgba(56,239,125,0.18)',
                   color: '#38EF7D',
                   border: '1px solid rgba(56,239,125,0.35)',
-                  marginBottom: 10,
+                  marginBottom: 8,
                 }}
               >
                 Phase 03 // Swarm Specialization
               </span>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>
+              <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 36px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
                 Autonomous Worker Fleet
               </h2>
-              <p style={{ fontSize: 14, color: '#D3D8EF', lineHeight: 1.6, margin: 0 }}>
-                Specialized sub-agents execute tasks under bounded SLA deadlines. Inspect worker skills and latency budgets.
+              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: 0 }}>
+                Specialized sub-agents execute tasks under SLA deadlines. Select a department to inspect workers.
               </p>
             </div>
 
             {/* Department Filter Pills */}
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 14 }}>
               {Object.keys(DEPARTMENTS_DATA).map((d) => {
                 const active = selectedDept === d;
                 const color = QUEEN_COLORS[d] || '#7C93FF';
@@ -652,7 +650,7 @@ export default function HomePage() {
                     key={d}
                     onClick={() => handleSelectOption(d)}
                     style={{
-                      padding: '4px 12px',
+                      padding: '3px 10px',
                       borderRadius: 999,
                       fontSize: 10,
                       fontFamily: 'monospace',
@@ -672,35 +670,35 @@ export default function HomePage() {
             {/* Active Department Worker Deck */}
             <div
               style={{
-                padding: '20px 22px',
-                borderRadius: 20,
+                padding: '16px 18px',
+                borderRadius: 18,
                 border: `1px solid ${activeDeptData.color}40`,
                 background: 'rgba(20,24,64,0.9)',
                 backdropFilter: 'blur(20px)',
-                boxShadow: `0 0 30px ${activeDeptData.color}20`,
+                boxShadow: `0 0 24px ${activeDeptData.color}20`,
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: activeDeptData.color }} />
-                  {activeDeptData.name} Sub-Agents
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: activeDeptData.color }} />
+                  {activeDeptData.name} Fleet
                 </h3>
                 {activeAlloc && (
-                  <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#10B981' }}>
+                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#10B981' }}>
                     T_i: {activeAlloc.T_i.toFixed(2)}s / SLA {activeAlloc.D.toFixed(1)}s
                   </span>
                 )}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {activeDeptData.workers.map((w) => (
                   <div
                     key={w.name}
                     onClick={() => setActiveNode(w.name)}
                     style={{
                       cursor: 'pointer',
-                      padding: '14px 16px',
-                      borderRadius: 14,
+                      padding: '12px 14px',
+                      borderRadius: 12,
                       background: 'rgba(16,20,43,0.85)',
                       border: '1px solid rgba(124,147,255,0.2)',
                       transition: 'all 0.2s',
@@ -708,13 +706,13 @@ export default function HomePage() {
                     onMouseEnter={(e) => (e.currentTarget.style.borderColor = activeDeptData.color)}
                     onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(124,147,255,0.2)')}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>{w.name}</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: 0 }}>{w.name}</h4>
                       <span
                         style={{
                           fontSize: 9,
                           fontFamily: 'monospace',
-                          padding: '2px 6px',
+                          padding: '1px 5px',
                           borderRadius: 999,
                           background: w.status === 'active' ? 'rgba(16,185,129,0.15)' : 'rgba(242,166,90,0.15)',
                           color: w.status === 'active' ? '#10B981' : '#F2A65A',
@@ -723,15 +721,15 @@ export default function HomePage() {
                         {w.load}
                       </span>
                     </div>
-                    <span style={{ fontSize: 10, fontFamily: 'monospace', color: activeDeptData.color, display: 'block', marginBottom: 6 }}>
+                    <span style={{ fontSize: 10, fontFamily: 'monospace', color: activeDeptData.color, display: 'block', marginBottom: 4 }}>
                       {w.role}
                     </span>
-                    <p style={{ fontSize: 11, color: '#CAD4FF', lineHeight: 1.4, margin: '0 0 8px' }}>
+                    <p style={{ fontSize: 11, color: '#CAD4FF', lineHeight: 1.4, margin: '0 0 6px' }}>
                       {w.description}
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                       {w.skills.map((s) => (
-                        <span key={s} style={{ fontSize: 9, fontFamily: 'monospace', padding: '1px 5px', borderRadius: 4, background: 'rgba(124,147,255,0.1)', color: '#CAD4FF' }}>
+                        <span key={s} style={{ fontSize: 9, fontFamily: 'monospace', padding: '1px 4px', borderRadius: 4, background: 'rgba(124,147,255,0.1)', color: '#CAD4FF' }}>
                           #{s}
                         </span>
                       ))}
@@ -744,7 +742,7 @@ export default function HomePage() {
 
           {/* ── STAGE 3: SWARM MOVES TO LEFT // CONTENT ON RIGHT ───────────── */}
 
-          {/* § 4: SOLVER BENCHMARK (RIGHT 50%) */}
+          {/* § 4: SOLVER BENCHMARK (RIGHT COLUMN) */}
           <section
             ref={sectionRefs[3]}
             style={{
@@ -752,45 +750,45 @@ export default function HomePage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: '80px 0',
+              padding: '60px 0',
               marginLeft: 'auto',
-              maxWidth: '48%', // Leaves left 50% clear for the 3D Swarm!
+              maxWidth: '44%', // Generous margin leaves swarm 100% visible on left!
             }}
           >
-            <div style={{ marginBottom: 18 }}>
+            <div style={{ marginBottom: 14 }}>
               <span
                 style={{
                   display: 'inline-block',
-                  padding: '4px 12px',
+                  padding: '3px 10px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontFamily: 'monospace',
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   background: 'rgba(124,147,255,0.18)',
                   color: '#7C93FF',
                   border: '1px solid rgba(124,147,255,0.35)',
-                  marginBottom: 10,
+                  marginBottom: 8,
                 }}
               >
                 Phase 04 // Mathematical Optimization
               </span>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>
+              <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 36px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
                 Nash vs Baseline Benchmarks
               </h2>
-              <p style={{ fontSize: 14, color: '#D3D8EF', lineHeight: 1.6, margin: 0 }}>
-                Formulated as a cooperative game. Nash Bargaining guarantees positive utility (+5.61 pts) while greedy FCFS drives starvation (-25.98 pts).
+              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: 0 }}>
+                Cooperative Nash Bargaining guarantees positive utility (+5.61 pts) while greedy FCFS drives starvation (-25.98 pts).
               </p>
             </div>
 
             {comp ? (
-              <div style={{ background: 'rgba(20,24,64,0.9)', padding: 20, borderRadius: 20, border: '1px solid rgba(124,147,255,0.3)', backdropFilter: 'blur(20px)' }}>
+              <div style={{ background: 'rgba(20,24,64,0.9)', padding: 16, borderRadius: 18, border: '1px solid rgba(124,147,255,0.3)', backdropFilter: 'blur(20px)' }}>
                 <UtilityComparisonChart comparison={comp} />
               </div>
             ) : null}
           </section>
 
-          {/* § 5: PRIORITY WAVE SLIDERS (RIGHT 50%) */}
+          {/* § 5: PRIORITY WAVE SLIDERS (RIGHT COLUMN) */}
           <section
             ref={sectionRefs[4]}
             style={{
@@ -798,34 +796,34 @@ export default function HomePage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: '80px 0',
+              padding: '60px 0',
               marginLeft: 'auto',
-              maxWidth: '48%', // Leaves left 50% clear for the 3D Swarm!
+              maxWidth: '44%', // Generous margin leaves swarm 100% visible on left!
             }}
           >
-            <div style={{ marginBottom: 18 }}>
+            <div style={{ marginBottom: 14 }}>
               <span
                 style={{
                   display: 'inline-block',
-                  padding: '4px 12px',
+                  padding: '3px 10px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontFamily: 'monospace',
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   background: 'rgba(0,242,254,0.18)',
                   color: '#00F2FE',
                   border: '1px solid rgba(0,242,254,0.35)',
-                  marginBottom: 10,
+                  marginBottom: 8,
                 }}
               >
                 Phase 05 // Dynamic Priority Wave
               </span>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>
+              <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 36px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
                 Multi-Objective Priority Wave
               </h2>
-              <p style={{ fontSize: 14, color: '#D3D8EF', lineHeight: 1.6, margin: 0 }}>
-                The priority wave on the left redistributes compute dynamically. Tune task value ($w_1$), CPU cost dampening ($w_2$), and SLA latency penalties ($w_3$).
+              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: 0 }}>
+                Tune task value ($w_1$), CPU cost dampening ($w_2$), and SLA latency penalties ($w_3$).
               </p>
             </div>
 
@@ -840,7 +838,7 @@ export default function HomePage() {
             />
           </section>
 
-          {/* § 6: BYZANTINE TRUST & REPUTATION TESTER (RIGHT 50%) */}
+          {/* § 6: BYZANTINE TRUST & REPUTATION TESTER (RIGHT COLUMN) */}
           <section
             ref={sectionRefs[5]}
             style={{
@@ -848,33 +846,33 @@ export default function HomePage() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: '80px 0',
+              padding: '60px 0',
               marginLeft: 'auto',
-              maxWidth: '48%', // Leaves left 50% clear for the 3D Swarm!
+              maxWidth: '44%', // Generous margin leaves swarm 100% visible on left!
             }}
           >
-            <div style={{ marginBottom: 18 }}>
+            <div style={{ marginBottom: 14 }}>
               <span
                 style={{
                   display: 'inline-block',
-                  padding: '4px 12px',
+                  padding: '3px 10px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontFamily: 'monospace',
                   textTransform: 'uppercase',
                   letterSpacing: '0.12em',
                   background: 'rgba(239,68,68,0.18)',
                   color: '#EF4444',
                   border: '1px solid rgba(239,68,68,0.35)',
-                  marginBottom: 10,
+                  marginBottom: 8,
                 }}
               >
                 Phase 06 // Byzantine Trust Defense
               </span>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 8px' }}>
-                Bayesian Reputation & Social Dilemma
+              <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 36px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
+                Bayesian Reputation & Defense
               </h2>
-              <p style={{ fontSize: 14, color: '#D3D8EF', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: 0 }}>
                 Inject a dishonest bid below to observe Bayesian decay discount that Queen&apos;s priority and turn its 3D trust halo on the left from green to red.
               </p>
             </div>
@@ -887,27 +885,27 @@ export default function HomePage() {
             {/* Academic Foundations & Footer */}
             <footer
               style={{
-                paddingTop: 28,
+                paddingTop: 24,
                 borderTop: '1px solid rgba(124,147,255,0.2)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 12,
+                gap: 10,
                 fontSize: 10,
                 fontFamily: 'monospace',
                 color: '#9AA2C9',
-                marginTop: 36,
+                marginTop: 28,
               }}
             >
               <div>
                 <strong style={{ color: '#fff' }}>Theoretical Foundations:</strong>
-                <ul style={{ marginTop: 6, paddingLeft: 16, lineHeight: 1.8 }}>
+                <ul style={{ marginTop: 4, paddingLeft: 16, lineHeight: 1.7 }}>
                   <li><span style={{ color: '#7C93FF' }}>Nash Bargaining (NBS)</span>: Classical cooperative game theory (Nash 1950)</li>
                   <li><span style={{ color: '#F2A65A' }}>Multi-Objective Tuning</span>: Hybrid GA/GWO Pareto frontier (Jain et al. 2022)</li>
                   <li><span style={{ color: '#10B981' }}>Byzantine Trust Layer</span>: Bayesian reputation decay $R_i$ (Kishor & Niyogi 2023)</li>
                 </ul>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>SynapseOS Core Platform · CVXPY [Clarabel / ECOS]</span>
+                <span>SynapseOS Core Platform · CVXPY</span>
                 <button
                   onClick={() => scrollToSection(0)}
                   style={{
