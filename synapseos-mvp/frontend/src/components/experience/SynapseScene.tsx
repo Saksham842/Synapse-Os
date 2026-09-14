@@ -310,30 +310,31 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
         targetCamZ = 12.0;
         targetLookAt.set(0, 0, 0);
       } else {
-        // Overview perspective — Z=15.5 guarantees entire constellation fits without cut off
+        // In starting stage (progress < 0.16), canvas is full width (100vw), camera at Z=12.2 gives a BIG, epic, centered swarm!
+        // When scrolled into split view (progress >= 0.16), camera pulls back to Z=15.5 so all nodes fit comfortably in the 54% width without cropping!
         targetCamX = 0;
-        targetCamY = 1.0;
-        targetCamZ = 15.5;
+        targetCamY = progress < 0.16 ? 0.0 : 0.8;
+        targetCamZ = progress < 0.16 ? 12.2 : 15.5;
         targetLookAt.set(0, 0, 0);
       }
     } else {
       // Cinematic Scroll Path
       if (progress <= 0.15) {
-        // Scene 1: Big Bang cosmic ignition — start at distance 12.5 so it is immediately visible
+        // Scene 1: Big Bang cosmic ignition — start at distance 12.2 so it is immediately big and visible
         const s1 = progress / 0.15;
-        targetCamZ = 12.5 - s1 * 1.5;
-        targetCamY = 0.3 - s1 * 0.3;
-        targetCamX = -0.8 * (1 - s1);
+        targetCamZ = 12.2 - s1 * 1.2;
+        targetCamY = 0.0;
+        targetCamX = 0;
       } else if (progress <= 0.35) {
         // Scene 2: Constellation full view
         const s2 = (progress - 0.15) / 0.2;
-        targetCamZ = THREE.MathUtils.lerp(11.0, 12.5, s2);
-        targetCamY = THREE.MathUtils.lerp(0.3, 0.4, s2);
+        targetCamZ = THREE.MathUtils.lerp(12.2, 14.5, s2);
+        targetCamY = THREE.MathUtils.lerp(0.0, 0.5, s2);
         targetCamX = 0;
       } else if (progress <= 0.55) {
         // Scene 3: Departmental Bloom zoom
         const s3 = (progress - 0.35) / 0.2;
-        targetCamZ = THREE.MathUtils.lerp(12.5, 9.0, s3);
+        targetCamZ = THREE.MathUtils.lerp(14.5, 9.0, s3);
         targetCamX = THREE.MathUtils.lerp(0, 1.2, s3);
       } else if (progress <= 0.70) {
         // Scene 4: Synaptic conduits streaming
@@ -344,7 +345,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
         // Scene 5 & 6: Priority Wave & Logo Resolve
         const s5 = Math.min((progress - 0.70) / 0.15, 1.0);
         targetCamZ = THREE.MathUtils.lerp(13.5, 16.5, s5);
-        targetCamY = THREE.MathUtils.lerp(0.4, 0.2, s5);
+        targetCamY = THREE.MathUtils.lerp(0.5, 0.2, s5);
         targetCamX = 0;
       }
     }
@@ -364,8 +365,8 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
       const easedExpansion = easePower3Out(s1Prog);
       const pulse = 1.0 + Math.sin(time * 2.2) * 0.05;
 
-      // Base radius of 2.2 ensures points are vibrant and expansive right on load!
-      const currentRadius = THREE.MathUtils.lerp(2.2, 5.8, easedExpansion) * pulse;
+      // Base radius of 3.2 ensures points form a large, expansive, vibrant cosmic swarm right on load!
+      const currentRadius = THREE.MathUtils.lerp(3.2, 6.0, easedExpansion) * pulse;
 
       // Smooth opacity: prominent in Scene 1, then relaxes to an ambient cosmic dust backdrop
       let opacity = 0.95;
@@ -377,7 +378,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
 
       const mat = bigBangPointsRef.current.material as THREE.PointsMaterial;
       mat.opacity = opacity;
-      mat.size = THREE.MathUtils.lerp(0.18, 0.26, easedExpansion);
+      mat.size = THREE.MathUtils.lerp(0.24, 0.32, easedExpansion);
 
       bigBangPointsRef.current.scale.setScalar(currentRadius);
       bigBangPointsRef.current.rotation.y = time * 0.12;
@@ -398,12 +399,8 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
       constellationGroupRef.current.rotation.z += delta * rotSpeed;
       constellationGroupRef.current.rotation.y = Math.sin(time * 0.1) * 0.1;
 
-      // In Scene 1, constellation fades in smoothly; in later scenes and dashboard, it's 100% visible
-      let constelScale = 1.0;
-      if (progress < 0.12) {
-        constelScale = easePower3Out(progress / 0.12);
-      }
-      constellationGroupRef.current.scale.setScalar(constelScale);
+      // Constellation is fully visible from start so there is an impressive big swarm immediately!
+      constellationGroupRef.current.scale.setScalar(1.0);
     }
 
     // Central Core Animation

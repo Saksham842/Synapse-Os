@@ -213,7 +213,7 @@ export default function HomePage() {
             pointerEvents: 'auto',
             transition: 'all 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
             ...(swarmStage === 'center'
-              ? { left: 0, width: '100%', height: '56vh' }
+              ? { left: 0, width: '100%', height: '100vh', bottom: 0 }
               : swarmStage === 'right'
               ? { left: '46%', width: '54%', height: '100vh', bottom: 0 }
               : { left: 0, width: '54%', height: '100vh', bottom: 0 }),
@@ -361,107 +361,49 @@ export default function HomePage() {
       ═════════════════════════════════════════════════════════════════════ */}
       <div style={{ position: 'relative', zIndex: 15 }}>
 
-        {/* ── § 1: INITIAL STAGE — SWARM IN TOP 56vh, SYNAPSEOS STRICTLY BELOW ── */}
+        {/* ── § 1: INITIAL STAGE — PURE BIG 3D SWARM (UNOBSTRUCTED) ──────── */}
         <section
           ref={sectionRefs[0]}
           style={{
-            minHeight: '100vh',
+            height: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
             alignItems: 'center',
             textAlign: 'center',
-            padding: '0 24px 44px',
+            padding: '0 24px 34px',
             pointerEvents: 'none',
           }}
         >
-          {/* Content sits strictly BELOW the top 56vh 3D swarm */}
-          <div style={{ maxWidth: 840, pointerEvents: 'auto', paddingTop: '58vh' }}>
+          <div
+            onClick={() => scrollToSection(1)}
+            style={{
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 20px',
+              borderRadius: 999,
+              background: 'rgba(20,24,64,0.68)',
+              border: '1px solid rgba(124,147,255,0.3)',
+              backdropFilter: 'blur(12px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
             <span
               style={{
-                display: 'inline-block',
-                padding: '4px 14px',
-                borderRadius: 999,
-                fontSize: 10,
+                fontSize: 11,
                 fontFamily: 'monospace',
-                textTransform: 'uppercase',
                 letterSpacing: '0.14em',
-                background: 'rgba(124,147,255,0.18)',
-                color: '#7C93FF',
-                border: '1px solid rgba(124,147,255,0.35)',
-                marginBottom: 10,
-                backdropFilter: 'blur(10px)',
-              }}
-            >
-              Phase 01 // Quantum Ignition
-            </span>
-            <h1
-              style={{
-                fontSize: 'clamp(36px, 5.5vw, 68px)',
-                fontFamily: 'serif',
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                color: '#fff',
-                textShadow: '0 0 45px rgba(124,147,255,0.5)',
-                margin: '0 0 8px',
-                lineHeight: 1.1,
-              }}
-            >
-              SynapseOS
-            </h1>
-            <p style={{ fontSize: 'clamp(14px, 1.8vw, 17px)', color: '#CAD4FF', fontWeight: 400, lineHeight: 1.5, margin: '0 auto 16px', maxWidth: 580 }}>
-              The AI Workforce Operating System: 7 department Queens delegating to specialized worker swarms, coordinated via a shared Second Brain and Nash compute governance.
-            </p>
-
-            {/* 4 Compact Telemetry Chips */}
-            {nash && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 18 }}>
-                {[
-                  { label: 'Compute Pool', val: `${F_max.toFixed(1)} k-cyc/s`, color: '#7C93FF' },
-                  { label: 'Nash Gain', val: `+${nash.total_utility.toFixed(2)} pts`, color: '#10B981' },
-                  { label: 'FCFS Gap', val: `+${comp?.utility_gap_fcfs.toFixed(2)} pts`, color: '#F2A65A' },
-                  { label: 'Equal Surplus', val: `+${comp?.utility_gap_equal.toFixed(2)} pts`, color: '#00F0FF' },
-                ].map((k) => (
-                  <div
-                    key={k.label}
-                    style={{
-                      padding: '5px 12px',
-                      borderRadius: 10,
-                      background: 'rgba(20,24,64,0.85)',
-                      border: '1px solid rgba(124,147,255,0.25)',
-                      backdropFilter: 'blur(10px)',
-                      fontSize: 11,
-                      fontFamily: 'monospace',
-                    }}
-                  >
-                    <span style={{ color: '#9AA2C9' }}>{k.label}: </span>
-                    <strong style={{ color: k.color }}>{k.val}</strong>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <button
-              onClick={() => scrollToSection(1)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '10px 20px',
-                borderRadius: 999,
-                background: 'linear-gradient(135deg,rgba(124,147,255,0.2),rgba(90,111,232,0.3))',
-                color: '#fff',
+                textTransform: 'uppercase',
+                color: '#CAD4FF',
                 fontWeight: 600,
-                fontSize: 12,
-                fontFamily: 'monospace',
-                border: '1px solid rgba(124,147,255,0.35)',
-                cursor: 'pointer',
-                backdropFilter: 'blur(10px)',
               }}
             >
-              Scroll down to inspect swarms
-              <ChevronDown style={{ width: 14, height: 14, color: '#7C93FF' }} />
-            </button>
+              Scroll down to explore
+            </span>
+            <ChevronDown style={{ width: 14, height: 14, color: '#7C93FF', animation: 'bounce 2s infinite' }} />
           </div>
         </section>
 
@@ -480,7 +422,7 @@ export default function HomePage() {
               maxWidth: '44%', // Generous margin leaves swarm 100% visible on right!
             }}
           >
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 14 }}>
               <span
                 style={{
                   display: 'inline-block',
@@ -501,9 +443,37 @@ export default function HomePage() {
               <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 36px)', fontFamily: 'serif', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
                 The 7 Department Queens
               </h2>
-              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: 13, color: '#D3D8EF', lineHeight: 1.5, margin: '0 0 12px' }}>
                 Autonomous department orchestrators orbit the core. The 3D swarm on the right displays live cycle allocations.
               </p>
+
+              {/* Live Compute Telemetry Chips */}
+              {nash && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {[
+                    { label: 'Compute Pool', val: `${F_max.toFixed(1)} k-cyc/s`, color: '#7C93FF' },
+                    { label: 'Nash Gain', val: `+${nash.total_utility.toFixed(2)} pts`, color: '#10B981' },
+                    { label: 'FCFS Gap', val: `+${comp?.utility_gap_fcfs.toFixed(2)} pts`, color: '#F2A65A' },
+                    { label: 'Equal Surplus', val: `+${comp?.utility_gap_equal.toFixed(2)} pts`, color: '#00F0FF' },
+                  ].map((k) => (
+                    <div
+                      key={k.label}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(20,24,64,0.85)',
+                        border: '1px solid rgba(124,147,255,0.25)',
+                        backdropFilter: 'blur(10px)',
+                        fontSize: 10,
+                        fontFamily: 'monospace',
+                      }}
+                    >
+                      <span style={{ color: '#9AA2C9' }}>{k.label}: </span>
+                      <strong style={{ color: k.color }}>{k.val}</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Quick 3D Focus Bar */}
