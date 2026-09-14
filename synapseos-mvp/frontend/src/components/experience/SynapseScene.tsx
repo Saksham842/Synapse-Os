@@ -283,29 +283,33 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
     const inDash = isInDashboard || progress >= 0.85;
 
     // ── SWARM HORIZONTAL TRANSLATION (Smooth, Lag-Free 3D GPU Movement) ──
-    // Center (0) -> Smooth glide to Right (+3.1) -> Smooth glide to Left (-3.1)
+    // Center (0) -> Smooth glide to Right (+3.1) -> Swift glide to Left (-3.1)
     let targetRootX = 0;
     if (progress <= 0.05) {
       targetRootX = 0;
-    } else if (progress < 0.24) {
-      const t = (progress - 0.05) / 0.19;
+    } else if (progress < 0.22) {
+      const t = (progress - 0.05) / 0.17;
       const smoothT = t * t * (3 - 2 * t);
       targetRootX = THREE.MathUtils.lerp(0, 3.1, smoothT);
-    } else if (progress <= 0.48) {
+    } else if (progress <= 0.44) {
       targetRootX = 3.1;
-    } else if (progress < 0.66) {
-      const t = (progress - 0.48) / 0.18;
+    } else if (progress < 0.53) {
+      // Swift, snappy transition towards left (0.44 -> 0.53)
+      const t = (progress - 0.44) / 0.09;
       const smoothT = t * t * (3 - 2 * t);
       targetRootX = THREE.MathUtils.lerp(3.1, -3.1, smoothT);
     } else {
       targetRootX = -3.1;
     }
 
+    // Dynamic damping speed: high responsiveness (8.5) when moving towards left
+    const dampFactor = progress >= 0.43 && progress <= 0.60 ? 8.5 : 5.5;
+
     if (rootSwarmGroupRef.current) {
       rootSwarmGroupRef.current.position.x = THREE.MathUtils.damp(
         rootSwarmGroupRef.current.position.x,
         targetRootX,
-        4.5,
+        dampFactor,
         delta
       );
     }
