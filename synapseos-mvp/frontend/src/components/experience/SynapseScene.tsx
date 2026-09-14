@@ -263,6 +263,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
   const nodeSpikesRef = useRef<Float32Array>(new Float32Array(priorityNodes.length).fill(0));
 
   // Root Groups
+  const rootSwarmGroupRef     = useRef<THREE.Group>(null);
   const constellationGroupRef = useRef<THREE.Group>(null);
   const bloomGroupRef         = useRef<THREE.Group>(null);
   const waveGroupRef          = useRef<THREE.Group>(null);
@@ -281,10 +282,38 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
     const progress = Math.min(Math.max(scrollProgress, 0), 1);
     const inDash = isInDashboard || progress >= 0.85;
 
+    // ── SWARM HORIZONTAL TRANSLATION (Smooth, Lag-Free 3D GPU Movement) ──
+    // Center (0) -> Smooth glide to Right (+3.1) -> Smooth glide to Left (-3.1)
+    let targetRootX = 0;
+    if (progress <= 0.05) {
+      targetRootX = 0;
+    } else if (progress < 0.24) {
+      const t = (progress - 0.05) / 0.19;
+      const smoothT = t * t * (3 - 2 * t);
+      targetRootX = THREE.MathUtils.lerp(0, 3.1, smoothT);
+    } else if (progress <= 0.48) {
+      targetRootX = 3.1;
+    } else if (progress < 0.66) {
+      const t = (progress - 0.48) / 0.18;
+      const smoothT = t * t * (3 - 2 * t);
+      targetRootX = THREE.MathUtils.lerp(3.1, -3.1, smoothT);
+    } else {
+      targetRootX = -3.1;
+    }
+
+    if (rootSwarmGroupRef.current) {
+      rootSwarmGroupRef.current.position.x = THREE.MathUtils.damp(
+        rootSwarmGroupRef.current.position.x,
+        targetRootX,
+        4.5,
+        delta
+      );
+    }
+
     // ── 1. CAMERA INTERPOLATION ───────────────────────────────────────────
     let targetCamX = 0;
     let targetCamY = 0;
-    let targetCamZ = 15.5;
+    let targetCamZ = 12.8;
     const targetLookAt = new THREE.Vector3(0, 0, 0);
 
     if (inDash) {
@@ -310,17 +339,15 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
         targetCamZ = 12.0;
         targetLookAt.set(0, 0, 0);
       } else {
-        // In starting stage (progress < 0.16), canvas is full width (100vw), camera at Z=12.2 gives a BIG, epic, centered swarm!
-        // When scrolled into split view (progress >= 0.16), camera pulls back to Z=15.5 so all nodes fit comfortably in the 54% width without cropping!
+        // Overview perspective — Z=12.8 frames full constellation with ample breathing room
         targetCamX = 0;
-        targetCamY = progress < 0.16 ? 0.0 : 0.8;
-        targetCamZ = progress < 0.16 ? 12.2 : 15.5;
+        targetCamY = 0.2;
+        targetCamZ = 12.8;
         targetLookAt.set(0, 0, 0);
       }
     } else {
       // Cinematic Scroll Path
       if (progress <= 0.15) {
-        // Scene 1: Big Bang cosmic ignition — start at distance 12.2 so it is immediately big and visible
         const s1 = progress / 0.15;
         targetCamZ = 12.2 - s1 * 1.2;
         targetCamY = 0.0;
@@ -506,7 +533,7 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
   });
 
   return (
-    <>
+    <group ref={rootSwarmGroupRef}>
       {/* Dynamic Lighting */}
       <ambientLight intensity={0.55} />
       <pointLight position={[0, 0, 8]} intensity={2.2} color="#7C93FF" distance={30} />
@@ -812,6 +839,6 @@ export const SynapseScene: React.FC<SynapseSceneProps> = ({
           />
         </mesh>
       </group>
-    </>
+    </group>
   );
 };
