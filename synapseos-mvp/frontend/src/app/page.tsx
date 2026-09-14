@@ -16,7 +16,6 @@ import {
   Radio,
   Activity,
   BarChart2,
-  ChevronDown,
   RotateCcw,
   ArrowRight,
   ShieldCheck,
@@ -297,58 +296,6 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── FIXED RIGHT-SIDE NAVIGATION BULLETS ─────────────────────────── */}
-      <nav
-        style={{
-          position: 'fixed',
-          right: 18,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 40,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-          pointerEvents: 'auto',
-        }}
-      >
-        {SCENES.map((s, i) => {
-          const active = i === sceneIdx;
-          return (
-            <button
-              key={s.id}
-              onClick={() => scrollToSection(i)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}
-              title={`${s.title} — ${s.subtitle}`}
-            >
-              <span
-                style={{
-                  fontSize: 10,
-                  fontFamily: 'monospace',
-                  color: active ? '#7C93FF' : '#9AA2C9',
-                  opacity: active ? 1 : 0,
-                  transition: 'opacity 0.3s',
-                  textShadow: '0 0 8px rgba(0,0,0,0.9)',
-                }}
-              >
-                {s.title}
-              </span>
-              <div
-                style={{
-                  width: 9,
-                  height: 9,
-                  borderRadius: '50%',
-                  border: `1px solid ${active ? '#7C93FF' : 'rgba(124,147,255,0.4)'}`,
-                  background: active ? '#7C93FF' : 'transparent',
-                  transform: active ? 'scale(1.25)' : 'scale(1)',
-                  boxShadow: active ? '0 0 10px #7C93FF' : 'none',
-                  transition: 'all 0.3s',
-                }}
-              />
-            </button>
-          );
-        })}
-      </nav>
-
       {/* ContentPanel Drawer */}
       {canvasReady && <ContentPanel />}
 
@@ -362,46 +309,9 @@ export default function HomePage() {
           ref={sectionRefs[0]}
           style={{
             height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            textAlign: 'center',
-            padding: '0 24px 34px',
             pointerEvents: 'none',
           }}
-        >
-          <div
-            onClick={() => scrollToSection(1)}
-            style={{
-              pointerEvents: 'auto',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 20px',
-              borderRadius: 999,
-              background: 'rgba(20,24,64,0.68)',
-              border: '1px solid rgba(124,147,255,0.3)',
-              backdropFilter: 'blur(12px)',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontFamily: 'monospace',
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: '#CAD4FF',
-                fontWeight: 600,
-              }}
-            >
-              Scroll down to explore
-            </span>
-            <ChevronDown style={{ width: 14, height: 14, color: '#7C93FF', animation: 'bounce 2s infinite' }} />
-          </div>
-        </section>
+        />
 
         {/* ── STAGE 2: SWARM MOVES TO RIGHT // CONTENT ON LEFT ────────────── */}
         <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 28px' }}>
